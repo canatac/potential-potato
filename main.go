@@ -54,6 +54,5 @@ func main() {
 			http.Error(w, "Invalid OTP", http.StatusBadRequest)
 		}
 	})
-
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
