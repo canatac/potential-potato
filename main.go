@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -54,5 +55,5 @@ func main() {
 		}
 	})
 
-	http.ListenAndServe(fmt.Sprintf(":%s", serverPort, nil))
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
