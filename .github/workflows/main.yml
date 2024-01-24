@@ -1,0 +1,32 @@
+name: Deploy to Google Cloud
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@master
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: certeef-otp
+
+    - name: Copy code to Google Cloud
+      run: |
+        gcloud compute scp --recurse . instance-1:~/my-app --zone us-central1-a
+
+    - name: Install Go on Google Cloud
+      run: |
+        gcloud compute ssh instance-1 --zone us-central1-a --command "sudo apt-get update && sudo apt-get install -y golang-go"
+
+    - name: Run Go app on Google Cloud
+      run: |
+        gcloud compute ssh instance-1 --zone us-central1-a --command "cd ~/my-app && go run ."
