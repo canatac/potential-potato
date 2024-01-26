@@ -19,23 +19,23 @@ jobs:
       uses: actions/checkout@v4
 
     - id: "auth"
-        uses: "google-github-actions/auth@v1"
-        with:
-          credentials_json: "${{ secrets.SERVICE_ACCOUNT_KEY }}"
+      uses: "google-github-actions/auth@v1"
+      with:
+        credentials_json: "${{ secrets.SERVICE_ACCOUNT_KEY }}"
 
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v1"
+    - name: "Set up Cloud SDK"
+      uses: "google-github-actions/setup-gcloud@v1"
 
-      - name: "Use gcloud CLI"
-        run: "gcloud info"
+    - name: "Use gcloud CLI"
+      run: "gcloud info"
       
-      - name: "Docker auth"
-        run: |-
+    - name: "Docker auth"
+      run: |-
           gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev --quiet
       
-      - name: Build image
-        run: docker build . --file . --tag ${{ env.GAR_LOCATION }}
-        working-directory: "https://github.com/canatac/potential-potato"
+    - name: Build image
+      run: docker build . --file . --tag ${{ env.GAR_LOCATION }}
+      working-directory: "https://github.com/canatac/potential-potato"
 
-      - name: Push image
-        run: docker push ${{ secrets.GAR_LOCATION }}
+    - name: Push image
+      run: docker push ${{ secrets.GAR_LOCATION }}
