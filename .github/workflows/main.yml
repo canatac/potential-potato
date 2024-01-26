@@ -34,24 +34,21 @@ jobs:
       with:
         credentials_json: "${{ secrets.SERVICE_ACCOUNT_KEY }}"
 
-
     - name: "Set up Cloud SDK"
       uses: "google-github-actions/setup-gcloud@v1"
 
     - name: "Use gcloud CLI"
       run: "gcloud info"
       
-    - name: Login to Google Artifact Registry
-      run: |
-        echo ${{ secrets.SERVICE_ACCOUNT_KEY }} | docker login -u _json_key --password-stdin https://${{secrets.REGION}}-docker.pkg.dev
-
+    - name: "Docker auth"
+        run: |-
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
     - name: Pull and push to Google Artifact Registry
       run: |
         docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{secrets.GCP_PROJECT}}:latest
         docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{secrets.GCP_PROJECT}}:latest ${{secrets.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT}}/${{secrets.REPO_NAME}}/${{secrets.GCP_PROJECT}}:latest
         docker push ${{secrets.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT}}/${{secrets.REPO_NAME}}/${{secrets.GCP_PROJECT}}:latest
-
 
     - name: Deploy to Google Cloud Run
       run: |
