@@ -28,7 +28,8 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{secrets.GCP_PROJECT}}:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/otp_checker:latest
+
     - id: "auth"
       uses: "google-github-actions/auth@v1"
       with:
@@ -46,10 +47,10 @@ jobs:
 
     - name: Pull and push to Google Artifact Registry
       run: |
-        docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{secrets.GCP_PROJECT}}:latest
-        docker tag ${{ secrets.DOCKERHUB_USERNAME }}/${{secrets.GCP_PROJECT}}:latest ${{secrets.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT}}/${{secrets.REPO_NAME}}/${{secrets.GCP_PROJECT}}:latest
-        docker push ${{secrets.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT}}/${{secrets.REPO_NAME}}/${{secrets.GCP_PROJECT}}:latest
+        docker pull ${{ secrets.DOCKERHUB_USERNAME }}/otp_checker:latest
+        docker tag ${{ secrets.DOCKERHUB_USERNAME }}/otp_checker:latest ${{secrets.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT}}/${{secrets.REPO_NAME}}/otp_checkerlatest
+        docker push ${{secrets.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT}}/${{secrets.REPO_NAME}}/otp_checker:latest
 
     - name: Deploy to Google Cloud Run
       run: |
-        gcloud run deploy ${{secrets.GCP_PROJECT}} --image ${{secrets.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT}}/${{secrets.REPO_NAME}}/${{secrets.GCP_PROJECT}}:latest --region ${{secrets.REGION}} --platform managed --allow-unauthenticated
+        gcloud run deploy ${{secrets.GCP_PROJECT}} --image ${{secrets.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT}}/${{secrets.REPO_NAME}}/otp_checker:latest --region ${{secrets.REGION}} --platform managed --allow-unauthenticated
