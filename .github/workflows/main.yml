@@ -10,14 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v4
 
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        token_format: 'access_token'
+        project_id: ${{ secrets.GCP_PROJECT }}
+        workload_identity_provider: ${{ secrets.WORKLOAD_IDP }}
+        service_account: ${{ secrets.SERVICE_ACCOUNT_ID }}
+        create_credentials_file: true
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
       with:
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
-        project_id: certeef-otp
+        token_format: 'access_token'
+        project_id: ${{ secrets.GCP_PROJECT }}
+        workload_identity_provider: ${{ secrets.WORKLOAD_IDP }}
+        service_account: ${{ secrets.SERVICE_ACCOUNT_ID }}
+        create_credentials_file: true
 
     - name: Copy code to Google Cloud
       run: |
