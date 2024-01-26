@@ -18,25 +18,24 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - id: 'auth'
-      uses: 'google-github-actions/auth@v2'
-      with:
-        token_format: 'access_token'
-        project_id: ${{ secrets.GCP_PROJECT }}
-        workload_identity_provider: ${{ secrets.WORKLOAD_IDP }}
-        service_account: ${{ secrets.SERVICE_ACCOUNT }}
-        create_credentials_file: true
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v2
+    - id: "auth"
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{ secrets.SERVICE_ACCOUNT_KEY }}"
 
-    - name: Copy code to Google Cloud
-      run: |
-        gcloud compute scp --recurse . instance-1:~/my-app --zone us-central1-a
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v1"
 
-    - name: Install Go on Google Cloud
-      run: |
-        gcloud compute ssh instance-1 --zone us-central1-a --command "sudo apt-get update && sudo apt-get install -y golang-go"
+      - name: "Use gcloud CLI"
+        run: "gcloud info"
+      
+      - name: "Docker auth"
+        run: |-
+          gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev --quiet
+      
+      - name: Build image
+        run: docker build . --file . --tag ${{ env.GAR_LOCATION }}
+        working-directory: "https://github.com/canatac/potential-potato"
 
-    - name: Run Go app on Google Cloud
-      run: |
-        gcloud compute ssh instance-1 --zone us-central1-a --command "cd ~/my-app && go run ."
+      - name: Push image
+        run: docker push ${{ secrets.GAR_LOCATION }}
