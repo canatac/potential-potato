@@ -13,7 +13,6 @@ jobs:
       id-token: 'write'
     runs-on: ubuntu-latest
 
-
     steps:
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
@@ -50,7 +49,9 @@ jobs:
         docker pull ${{ secrets.DOCKERHUB_USERNAME }}/otp-checker:latest
         docker tag ${{ secrets.DOCKERHUB_USERNAME }}/otp-checker:latest ${{secrets.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT}}/${{secrets.REPO_NAME}}/otp-checker:latest
         docker push ${{secrets.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT}}/${{secrets.REPO_NAME}}/otp-checker:latest
-
-    - name: Deploy to Google Cloud Run
-      run: |
-        gcloud run deploy ${{secrets.GCP_PROJECT}} --image ${{secrets.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT}}/${{secrets.REPO_NAME}}/otp-checker:latest --region ${{secrets.REGION}} --platform managed --allow-unauthenticated
+  
+    - id: 'deploy'
+      uses: 'google-github-actions/deploy-cloudrun@v2'
+      with:
+        service: 'otp-checker-uptodate'
+        image: '${{secrets.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT}}/${{secrets.REPO_NAME}}/otp-checker:latest'
