@@ -35,8 +35,11 @@ func connectToRedis() *redis.Client {
 func verifyOTP(redisClient *redis.Client, email, otp string) bool {
 	storedOTP, err := redisClient.Get(ctx, email).Result()
 	if err != nil {
+		log.Println("Error retrieving OTP from Redis:", err)
 		return false
 	}
+
+	log.Println("Retrieved OTP from Redis:", storedOTP)
 
 	return otp == storedOTP
 }
