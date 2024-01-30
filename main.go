@@ -11,12 +11,15 @@ import (
 	redis "github.com/go-redis/redis/v8"
 )
 
-var serverPort = os.Getenv("SERVER_PORT")
+var redisURI = os.Getenv("REDIS_URI")
 
 var ctx = context.Background()
 
 func connectToRedis() *redis.Client {
-	redisURI := os.Getenv("REDIS_URI")
+	if redisURI == "" {
+		panic("REDIS_URI is empty")
+	}
+
 	addr, err := redis.ParseURL(redisURI)
 	if err != nil {
 		panic(err)
