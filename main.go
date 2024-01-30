@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -35,19 +36,34 @@ func connectToRedis() *redis.Client {
 func verifyOTP(redisClient *redis.Client, email, otp string) bool {
 	storedOTP, err := redisClient.Get(ctx, email).Result()
 	if err != nil {
+		if err == redis.Nil {
+			log.Println("OTP not found in Redis for email:", email)
+			return false
+		}
 		log.Println("Error retrieving OTP from Redis:", err)
 		return false
 	}
 
-	log.Println("Retrieved OTP from Redis:", storedOTP)
-
 	return otp == storedOTP
+}
+
+type RequestBody struct {
+	Email string `json:"email"`
+	OTP   string `json:"otp"`
 }
 
 func main() {
 	http.HandleFunc("/verify", func(w http.ResponseWriter, r *http.Request) {
-		email := r.URL.Query().Get("email")
-		otp := r.URL.Query().Get("otp")
+		decoder := json.NewDecoder(r.Body)
+		var requestBody RequestBody
+		err := decoder.Decode(&requestBody)
+		if err != nil {
+			http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+			return
+		}
+
+		email := requestBody.Email
+		otp := requestBody.OTP
 
 		redisClient := connectToRedis()
 		if verifyOTP(redisClient, email, otp) {
