@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -57,9 +59,22 @@ type RequestBody struct {
 
 func main() {
 	http.HandleFunc("/verify", func(w http.ResponseWriter, r *http.Request) {
+		var body bytes.Buffer
+		_, err := io.Copy(&body, r.Body)
+		if err != nil {
+			http.Error(w, "Error reading request body", http.StatusInternalServerError)
+			return
+		}
+
+		// Afficher le corps de la requête
+		fmt.Println("Request body:", body.String())
+
+		// Créer un nouveau lecteur pour le corps de la requête car io.Copy l'a déjà lu
+		r.Body = io.NopCloser(&body)
+
 		decoder := json.NewDecoder(r.Body)
 		var requestBody RequestBody
-		err := decoder.Decode(&requestBody)
+		err = decoder.Decode(&requestBody)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -73,7 +88,7 @@ func main() {
 			redisClient.Del(ctx, email)
 			fmt.Fprint(w, "OTP verified")
 		} else {
-			http.Error(w, "Invalid OTP", http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
 	})
 	log.Fatal(http.ListenAndServe(":8080", nil))
