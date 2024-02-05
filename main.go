@@ -77,11 +77,9 @@ func main() {
 
 		// Créer un nouveau lecteur pour le corps de la requête car io.Copy l'a déjà lu
 		r.Body = io.NopCloser(&body)
-
-		decoder := json.NewDecoder(r.Body)
 		var requestBody RequestBody
-		err = decoder.Decode(&requestBody)
-		err = json.NewDecoder(r.Body).Decode(&req)
+
+		err = json.NewDecoder(r.Body).Decode(&requestBody)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
