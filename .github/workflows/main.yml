@@ -55,3 +55,12 @@ jobs:
       with:
         service: 'otp-checker-uptodate'
         image: '${{secrets.REGION}}-docker.pkg.dev/${{secrets.GCP_PROJECT}}/${{secrets.REPO_NAME}}/otp-checker:latest'
+    
+    - name: Install Postman CLI
+      run: |
+        curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+    - name: Login to Postman CLI
+      run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+    - name: Run API tests
+      run: |
+        postman collection run "324787-e4a24961-c2be-415b-b28a-2a909369a7a1" -e "324787-1428447d-2d50-44e6-b8ce-fd127b0e76b2"
