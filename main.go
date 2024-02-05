@@ -61,7 +61,7 @@ func main() {
 		var requestBody RequestBody
 		err := decoder.Decode(&requestBody)
 		if err != nil {
-			http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
