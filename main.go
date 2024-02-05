@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -65,21 +63,9 @@ func main() {
 			return
 		}
 
-		var body bytes.Buffer
-		_, err := io.Copy(&body, r.Body)
-		if err != nil {
-			http.Error(w, "Error reading request body", http.StatusInternalServerError)
-			return
-		}
-
-		// Afficher le corps de la requête
-		fmt.Println("Request body:", body.String())
-
-		// Créer un nouveau lecteur pour le corps de la requête car io.Copy l'a déjà lu
-		r.Body = io.NopCloser(&body)
 		var requestBody RequestBody
 
-		err = json.NewDecoder(r.Body).Decode(&requestBody)
+		err := json.NewDecoder(r.Body).Decode(&requestBody)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -93,7 +79,7 @@ func main() {
 			redisClient.Del(ctx, email)
 			fmt.Fprint(w, "OTP verified")
 		} else {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusNotFound)
 		}
 	})
 	log.Fatal(http.ListenAndServe(":8080", nil))
