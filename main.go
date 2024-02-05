@@ -59,6 +59,12 @@ type RequestBody struct {
 
 func main() {
 	http.HandleFunc("/verify", func(w http.ResponseWriter, r *http.Request) {
+
+		if r.Method != http.MethodPost {
+			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+			return
+		}
+
 		var body bytes.Buffer
 		_, err := io.Copy(&body, r.Body)
 		if err != nil {
@@ -75,6 +81,7 @@ func main() {
 		decoder := json.NewDecoder(r.Body)
 		var requestBody RequestBody
 		err = decoder.Decode(&requestBody)
+		err = json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
