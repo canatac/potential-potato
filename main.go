@@ -79,7 +79,7 @@ func main() {
 			redisClient.Del(ctx, email)
 			fmt.Fprint(w, "OTP verified")
 		} else {
-			http.Error(w, err.Error(), http.StatusNotFound)
+			http.Error(w, "OTP not found", http.StatusNotFound)
 		}
 	})
 	log.Fatal(http.ListenAndServe(":8080", nil))
